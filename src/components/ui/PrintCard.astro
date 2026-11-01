@@ -1,0 +1,35 @@
+---
+/* Отпечаток: белое поле бумаги + портрет. Один компонент для печати и рамки,
+   чтобы при «приземлении» в рамку пропорции совпадали.
+   Внешний блок задаёт размер/положение, внутренний — поля бумаги в % от его ширины. */
+import Portrait from './Portrait.astro';
+import type { Field } from '../../data/schema';
+
+interface Props {
+  src: Field<string>;
+  alt: string;
+  class?: string;
+}
+const { src, alt, class: cls } = Astro.props;
+---
+
+<div class:list={['print-card', cls]}>
+  <div class="print-card__paper">
+    <Portrait src={src} alt={alt} class="print-card__img" />
+  </div>
+</div>
+
+<style>
+  .print-card__paper {
+    padding: 6% 6% 16%;
+    border-radius: 2px;
+    background: var(--paper);
+    box-shadow: var(--print-shadow, var(--shadow-paper));
+  }
+
+  .print-card :global(.print-card__img) {
+    width: 100%;
+    aspect-ratio: 3 / 4;
+    object-fit: cover;
+  }
+</style>

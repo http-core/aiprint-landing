@@ -1,0 +1,58 @@
+---
+import { site, val } from '../../data';
+const contact = val(site.telegramContact);
+---
+
+<footer class="footer">
+  <div class="footer__inner container">
+    <p class="footer__brand">{site.brand}</p>
+    <ul class="footer__links">
+      <li><a href={`https://t.me/${contact}`} target="_blank" rel="noopener">Telegram · @{contact}</a></li>
+      <li><a href="/privacy">Политика конфиденциальности</a></li>
+    </ul>
+    <p class="footer__copy mono">© {new Date().getFullYear()}</p>
+  </div>
+</footer>
+
+<style>
+  .footer {
+    padding-block: 40px;
+    background: var(--ink);
+    color: var(--milk);
+  }
+
+  .footer__inner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px 32px;
+  }
+
+  .footer__brand {
+    font-weight: 600;
+    letter-spacing: -0.02em;
+  }
+
+  .footer__links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 24px;
+  }
+
+  .footer__links a {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--tap);
+    color: rgb(250 248 243 / 0.78);
+    text-underline-offset: 4px;
+  }
+
+  .footer__links a:hover {
+    color: var(--lime);
+  }
+
+  .footer__copy {
+    color: rgb(250 248 243 / 0.5);
+  }
+</style>

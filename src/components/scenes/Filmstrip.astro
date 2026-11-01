@@ -1,0 +1,321 @@
+---
+import Portrait from '../ui/Portrait.astro';
+import { site, styles, val, phAttr, variantStyles } from '../../data';
+
+const { film } = site;
+const pad = (n: number) => String(n).padStart(2, '0');
+---
+
+<section class="film" id="film" aria-labelledby="film-title" data-scene="film">
+  <div class="film__head container">
+    <p class="kicker" style="--kicker-dot: var(--violet)">{film.kicker}</p>
+    <h2 class="film__title" id="film-title">{film.title}</h2>
+  </div>
+
+  <div class="film__viewport" tabindex="0" role="region" aria-label="Фотоплёнка со стилями — прокрутите, чтобы посмотреть все кадры">
+    <ol class="film__strip">
+      {
+        styles.list.map((s, i) => (
+          <li class="film__frame">
+            <figure class="film__fig">
+              <div class="film__photo">
+                <Portrait src={s.image} alt={s.alt} loading={i < 2 ? 'eager' : 'lazy'} class="film__img" />
+              </div>
+              <figcaption class="film__caption" {...phAttr(s.name)}>
+                <span aria-hidden="true">{pad(i + 1)}A ▸</span> {val(s.name)}
+              </figcaption>
+            </figure>
+          </li>
+        ))
+      }
+    </ol>
+  </div>
+
+  <p class="film__lead container">{film.lead}</p>
+
+  <div class="variants">
+    <div class="variants__inner container">
+      <h3 class="variants__title">{film.variantsTitle}</h3>
+      <ul class="variants__grid">
+        {
+          variantStyles.map((s, i) => {
+            const selected = i === styles.selected;
+            return (
+              <li class:list={['variant', { 'is-selected': selected }]}>
+                <figure>
+                  <div class="variant__photo">
+                    <Portrait src={s.image} alt={s.alt} class="variant__img" />
+                  </div>
+                  <figcaption class="variant__caption">
+                    <span {...phAttr(s.name)}>{val(s.name)}</span>
+                    {selected && <span class="variant__badge">✓ {film.selectedLabel}</span>}
+                  </figcaption>
+                </figure>
+              </li>
+            );
+          })
+        }
+      </ul>
+    </div>
+  </div>
+</section>
+
+<style>
+  .film {
+    --band: calc(var(--frame-w) * 0.13);
+    --frame-gap: calc(var(--frame-w) * 0.07);
+    position: relative;
+    z-index: 1;
+    padding-block: var(--section-pad);
+    background: var(--milk);
+  }
+
+  .film__head {
+    display: grid;
+    gap: 14px;
+  }
+
+  .film__title {
+    max-width: 18ch;
+    font-size: var(--fs-h2);
+    line-height: var(--lh-head);
+    letter-spacing: var(--tracking-head);
+  }
+
+  .film__lead {
+    margin-top: var(--space-6);
+    font-size: var(--fs-lead);
+    color: var(--ink-2);
+  }
+
+  /* ---------- Плёнка ---------- */
+  .film__viewport {
+    margin-top: var(--space-7);
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: thin;
+    padding-inline: var(--gutter);
+  }
+
+  .film__strip {
+    position: relative;
+    display: inline-flex;
+    padding: var(--band) var(--frame-gap) calc(var(--band) * 1.55);
+    background: var(--film);
+    border-radius: 3px;
+    box-shadow: var(--shadow-lift);
+  }
+
+  .film__strip::before,
+  .film__strip::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: var(--band);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='26' height='14'%3E%3Crect x='6' y='2' width='14' height='10' rx='2.5' fill='%23faf8f3'/%3E%3C/svg%3E");
+    background-repeat: repeat-x;
+    background-position: 4px center;
+  }
+
+  .film__strip::before {
+    top: 0;
+  }
+
+  .film__strip::after {
+    bottom: 0;
+  }
+
+  .film__frame {
+    scroll-snap-align: center;
+    padding-inline: var(--frame-gap);
+  }
+
+  .film__frame + .film__frame {
+    box-shadow: inset 1px 0 0 var(--film-edge);
+  }
+
+  .film__fig {
+    position: relative;
+    will-change: transform;
+  }
+
+  .film__photo {
+    width: var(--frame-w);
+    height: var(--frame-h);
+    overflow: hidden;
+    border-radius: 2px;
+    background: #222;
+  }
+
+  .film__photo :global(.film__img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .film__caption {
+    position: absolute;
+    top: calc(100% + var(--band) * 0.12);
+    left: 0;
+    font-family: var(--font-mono);
+    font-size: clamp(9px, 0.7rem, 11px);
+    letter-spacing: var(--tracking-mono);
+    text-transform: uppercase;
+    color: var(--lime);
+    white-space: nowrap;
+  }
+
+  /* ---------- Четыре варианта ---------- */
+  .variants {
+    margin-top: var(--section-pad);
+  }
+
+  .variants__title {
+    max-width: 22ch;
+    font-size: var(--fs-h3);
+    line-height: 1.08;
+    letter-spacing: -0.03em;
+  }
+
+  .variants__grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: clamp(12px, 2vw, 24px);
+    margin-top: var(--space-6);
+  }
+
+  @media (min-width: 1024px) {
+    .variants__grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+
+  .variant figure {
+    display: grid;
+    gap: 10px;
+  }
+
+  .variant__photo {
+    position: relative;
+    aspect-ratio: 3 / 4;
+    border-radius: 2px;
+    transition: transform var(--dur-slow) var(--ease-out);
+  }
+
+  .variant__photo :global(.variant__img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 2px;
+    box-shadow: var(--shadow-paper);
+  }
+
+  .variant.is-selected .variant__photo {
+    outline: 3px solid var(--lime);
+    outline-offset: 5px;
+  }
+
+  .variant__caption {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+    font-family: var(--font-mono);
+    font-size: var(--fs-mono);
+    letter-spacing: var(--tracking-mono);
+    text-transform: uppercase;
+    color: var(--ink-2);
+  }
+
+  .variant__badge {
+    padding: 4px 10px;
+    border-radius: var(--radius-pill);
+    background: var(--lime);
+    color: var(--ink);
+    font-weight: 600;
+  }
+
+  /* ---------- Анимированная версия: закреплённая сцена ---------- */
+  :global(.motion) .film {
+    height: 100svh;
+    padding: 0;
+    overflow: hidden;
+  }
+
+  :global(.motion) .film__head {
+    position: absolute;
+    inset: clamp(16px, 4svh, 40px) 0 auto;
+    z-index: 2;
+  }
+
+  :global(.motion) .film__title {
+    max-width: none;
+    font-size: clamp(1.625rem, 3.4vw, 3.25rem);
+  }
+
+  :global(.motion) .film__viewport {
+    position: absolute;
+    inset: 0;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    scroll-snap-type: none;
+  }
+
+  :global(.motion) .film__strip {
+    flex: none;
+    will-change: transform;
+  }
+
+  /* Первый кадр пуст, пока в него не «упадёт» портрет из сцены 1 */
+  :global(.motion) .film__frame:first-child .film__photo :global(img) {
+    opacity: 0;
+  }
+
+  :global(.motion) .film__lead {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: clamp(16px, 4svh, 40px);
+    margin: 0;
+    z-index: 2;
+  }
+
+  :global(.motion) .variants {
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    visibility: hidden;
+  }
+
+  :global(.motion) .variants__inner {
+    display: grid;
+    justify-items: center;
+    gap: clamp(16px, 3svh, 32px);
+  }
+
+  :global(.motion) .variants__title {
+    max-width: none;
+    text-align: center;
+    font-size: clamp(1.5rem, 3vw, 2.75rem);
+  }
+
+  :global(.motion) .variants__grid {
+    margin: 0;
+    width: min(100%, calc((100svh - 300px) * 0.75 * 4 + 72px));
+  }
+
+  @media (max-width: 1023px) {
+    :global(.motion) .variants__grid {
+      width: min(100%, calc((100svh - 300px) / 2 * 0.75 * 2 + 24px));
+    }
+  }
+</style>

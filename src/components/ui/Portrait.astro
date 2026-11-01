@@ -1,0 +1,27 @@
+---
+import { Picture } from 'astro:assets';
+import { asset, PORTRAIT_SIZES, PORTRAIT_WIDTHS } from '../../lib/images';
+import { phAttr, type Field } from '../../data/schema';
+
+interface Props {
+  src: Field<string>;
+  alt: string;
+  class?: string;
+  loading?: 'eager' | 'lazy';
+  fetchpriority?: 'high' | 'auto';
+}
+const { src, alt, class: cls, loading = 'lazy', fetchpriority } = Astro.props;
+---
+
+<Picture
+  src={asset(src)}
+  alt={alt}
+  widths={PORTRAIT_WIDTHS}
+  sizes={PORTRAIT_SIZES}
+  formats={['avif', 'webp']}
+  loading={loading}
+  decoding="async"
+  fetchpriority={fetchpriority}
+  class={cls}
+  {...phAttr(src)}
+/>

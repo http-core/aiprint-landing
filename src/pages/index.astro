@@ -1,0 +1,39 @@
+---
+import Base from '../layouts/Base.astro';
+import HeroFlash from '../components/scenes/HeroFlash.astro';
+import Filmstrip from '../components/scenes/Filmstrip.astro';
+import PrintScene from '../components/scenes/PrintScene.astro';
+import Equipment from '../components/scenes/Equipment.astro';
+import LeadForm from '../components/scenes/LeadForm.astro';
+import Footer from '../components/ui/Footer.astro';
+import { models, site, styles } from '../data';
+import { reportPlaceholders } from '../lib/placeholders';
+
+reportPlaceholders({ site, styles, models });
+---
+
+<Base>
+  <main id="main">
+    <HeroFlash />
+    <Filmstrip />
+    <PrintScene />
+    <Equipment />
+    <LeadForm />
+  </main>
+  <Footer />
+</Base>
+
+<script>
+  import { initCarousels } from '../scripts/carousel';
+  import { initLeadForm } from '../scripts/lead-form';
+
+  initCarousels();
+  initLeadForm();
+
+  // Анимации — отдельным чанком: страница полноценна и без них.
+  if (document.documentElement.classList.contains('motion')) {
+    import('../scripts/motion')
+      .then((m) => m.initMotion())
+      .catch((e) => console.error('[motion] анимации не загрузились:', e));
+  }
+</script>

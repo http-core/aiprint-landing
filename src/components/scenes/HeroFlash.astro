@@ -1,0 +1,318 @@
+---
+import Button from '../ui/Button.astro';
+import Lens from '../ui/Lens.astro';
+import Portrait from '../ui/Portrait.astro';
+import { heroStyle, site, val } from '../../data';
+
+const { hero } = site;
+---
+
+<section class="hero" id="top" aria-labelledby="hero-title" data-scene="hero">
+  <header class="hero__bar container">
+    <a class="brand" href="#top">
+      <span class="brand__mark" aria-hidden="true"></span>
+      {site.brand}
+    </a>
+    <a class="hero__bar-link" href="#lead"><span class="hero__bar-long">Оставить&nbsp;</span>заявку</a>
+  </header>
+
+  <div class="hero__inner container">
+    <h1 class="hero__title" id="hero-title">
+      <span class="hero__line hero__line--top">{hero.titleTop}</span>
+      <span class="hero__line hero__line--bottom">
+        {hero.titleBottomPlain}<em class="serif">{hero.titleBottomAccent}</em>
+      </span>
+    </h1>
+
+    <div class="hero__stage">
+      <div class="hero__lens" aria-hidden="true">
+        <div class="hero__plate"></div>
+        <Lens />
+      </div>
+      <figure class="hero__portrait">
+        <Portrait src={heroStyle.image} alt={heroStyle.alt} loading="eager" fetchpriority="high" class="hero__img" />
+        <figcaption class="hero__caption mono">Кадр 01 · {val(heroStyle.name)}</figcaption>
+        <button class="hero__replay" type="button" data-hero-replay aria-label="Повторить вспышку" title="Повторить вспышку">
+          <svg aria-hidden="true" viewBox="0 0 16 16" width="14" height="14"><path d="M13 8a5 5 0 1 1-1.6-3.7M13 2.5v2.8h-2.8" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+        </button>
+      </figure>
+    </div>
+
+    <div class="hero__foot">
+      <p class="hero__lead">{hero.lead}</p>
+      <div class="hero__actions">
+        <Button href="#lead">{hero.cta}</Button>
+        <a class="hero__more" href="#film">
+          {hero.secondaryCta}
+          <svg aria-hidden="true" viewBox="0 0 16 16" width="14" height="14"><path d="M8 2v11m-4.5-4.5L8 13l4.5-4.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="flash" aria-hidden="true"></div>
+
+<style>
+  .hero {
+    position: relative;
+    z-index: 3; /* портрет при переходе «падает» поверх сцены плёнки */
+    min-height: 100svh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .hero__bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    min-height: 72px;
+  }
+
+  .brand {
+    display: inline-flex;
+    white-space: nowrap;
+    align-items: center;
+    gap: 10px;
+    min-height: var(--tap);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    text-decoration: none;
+  }
+
+  .brand__mark {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 40% 38%, #4a36b8 0 22%, #08061a 23% 48%, var(--ink) 49%);
+    box-shadow: 0 0 0 3px var(--milk), 0 0 0 4px var(--line-strong);
+  }
+
+  .hero__bar-link {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--tap);
+    padding-inline: 18px;
+    border-radius: var(--radius-pill);
+    box-shadow: inset 0 0 0 1px var(--line-strong);
+    font-size: var(--fs-small);
+    font-weight: 500;
+    text-decoration: none;
+    transition: background-color var(--dur-base) var(--ease-out);
+  }
+
+  .hero__bar-link:hover {
+    background: var(--paper);
+  }
+
+  @media (max-width: 419px) {
+    .hero__bar-long {
+      display: none;
+    }
+
+    .hero__bar-link {
+      text-transform: capitalize;
+    }
+  }
+
+  /* ---------- Мобильная / планшетная компоновка: обычный поток ---------- */
+  .hero__inner {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: clamp(20px, 4svh, 36px);
+    padding-top: clamp(8px, 2svh, 24px);
+    padding-bottom: clamp(24px, 4svh, 48px);
+  }
+
+  .hero__title {
+    display: flex;
+    flex-direction: column;
+    font-size: var(--fs-display);
+    font-weight: 500;
+    line-height: var(--lh-tight);
+    letter-spacing: var(--tracking-display);
+  }
+
+  .hero__line--bottom {
+    align-self: flex-end;
+  }
+
+  .hero__line--bottom .serif {
+    letter-spacing: -0.03em;
+  }
+
+  .hero__stage {
+    position: relative;
+    width: calc(var(--frame-w) * 1.22);
+    height: var(--frame-h);
+    margin-inline: auto;
+    margin-bottom: 40px; /* место под подпись кадра и кнопку повтора */
+  }
+
+  .hero__lens,
+  .hero__portrait {
+    position: absolute;
+    inset: 0;
+    margin: auto;
+  }
+
+  .hero__lens {
+    width: calc(var(--frame-w) * 1.22);
+    height: calc(var(--frame-w) * 1.22);
+    opacity: 0; /* финальное (статичное) состояние: виден портрет */
+  }
+
+  .hero__plate {
+    position: absolute;
+    inset: -9%;
+    border-radius: 32%;
+    background: linear-gradient(160deg, #fff 0%, #f1eee7 100%);
+    box-shadow:
+      inset 0 0 0 1px rgb(20 20 20 / 0.06),
+      var(--shadow-paper);
+  }
+
+  .hero__lens :global(.lens) {
+    position: relative;
+  }
+
+  .hero__portrait {
+    width: var(--frame-w);
+    height: var(--frame-h);
+    will-change: transform;
+  }
+
+  .hero__portrait :global(.hero__img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 2px;
+    box-shadow: var(--shadow-lift);
+  }
+
+  .hero__caption {
+    position: absolute;
+    left: 0;
+    top: calc(100% + 12px);
+    color: var(--ink-2);
+    white-space: nowrap;
+  }
+
+  /* Маленькая кнопка повтора вспышки: 30px визуально, 44px область касания.
+     Только в анимированной версии — без анимаций повторять нечего. */
+  .hero__replay {
+    position: absolute;
+    right: 0;
+    top: calc(100% + 4px);
+    display: none;
+    place-items: center;
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: var(--paper);
+    color: var(--ink-2);
+    box-shadow: inset 0 0 0 1px var(--line-strong);
+    transition:
+      color var(--dur-fast) var(--ease-out),
+      background-color var(--dur-fast) var(--ease-out),
+      transform var(--dur-base) var(--ease-out);
+  }
+
+  .hero__replay::before {
+    content: '';
+    position: absolute;
+    inset: -7px;
+  }
+
+  .hero__replay:hover {
+    background: var(--lime);
+    color: var(--ink);
+    transform: rotate(-90deg);
+  }
+
+  :global(.motion) .hero__replay {
+    display: grid;
+  }
+
+  .hero__foot {
+    display: grid;
+    gap: 20px;
+  }
+
+  .hero__lead {
+    max-width: 30em;
+    font-size: var(--fs-lead);
+    line-height: 1.5;
+    color: var(--ink-2);
+  }
+
+  .hero__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px 24px;
+  }
+
+  .hero__more {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: var(--tap);
+    font-weight: 500;
+    text-underline-offset: 5px;
+    text-decoration-thickness: 1px;
+  }
+
+  /* ---------- Широкий экран: заголовок «обнимает» объектив ---------- */
+  @media (min-width: 1100px) {
+    .hero__inner {
+      position: relative;
+      display: block;
+      min-height: max(640px, calc(100svh - 72px));
+      padding: 0;
+    }
+
+    .hero__title {
+      position: absolute;
+      inset: 8px var(--gutter) clamp(24px, 4svh, 48px);
+      justify-content: space-between;
+      pointer-events: none;
+    }
+
+    .hero__stage {
+      position: absolute;
+      inset: 0;
+      margin: auto;
+    }
+
+    .hero__foot {
+      position: absolute;
+      left: var(--gutter);
+      bottom: clamp(24px, 4svh, 48px);
+      max-width: min(30em, max(340px, calc(50% - var(--frame-w) * 0.61 - 2 * var(--gutter))));
+    }
+  }
+
+  /* ---------- Анимированная версия: стартуем с объектива ---------- */
+  :global(.motion) .hero__lens {
+    opacity: 1;
+  }
+
+  :global(.motion) .hero__portrait {
+    opacity: 0;
+    visibility: hidden;
+  }
+
+  .flash {
+    position: fixed;
+    inset: 0;
+    z-index: 95;
+    background: #fff;
+    opacity: 0;
+    pointer-events: none;
+  }
+</style>

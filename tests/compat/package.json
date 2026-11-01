@@ -1,0 +1,6 @@
+{
+  "name": "compat-safari18",
+  "private": true,
+  "description": "WebKit 18 (≈ Safari 18) — отдельная версия Playwright, чтобы не конфликтовать с основной",
+  "dependencies": { "playwright": "1.49.1" }
+}

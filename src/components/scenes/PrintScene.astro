@@ -1,0 +1,366 @@
+---
+import PrintCard from '../ui/PrintCard.astro';
+import { selectedStyle, site, val } from '../../data';
+
+const { print } = site;
+const bot = val(site.resultsBot);
+---
+
+<section class="print" id="print" aria-labelledby="print-title" data-scene="print">
+  <div class="print__grid container">
+    <!-- .print__pin закрепляется на мобильных; на десктопе (display: contents) закрепляется вся секция -->
+    <div class="print__pin">
+      <div class="print__head">
+        <p class="kicker" style="--kicker-dot: var(--lime)">{print.kicker}</p>
+        <h2 class="print__title" id="print-title">{print.title}</h2>
+        <p class="print__lead">{print.lead}</p>
+      </div>
+
+      <!-- Прорезь и выезжающий снимок: визуализация, текстом процесс описан в шагах -->
+      <div class="print__machine" aria-hidden="true">
+        <div class="print__slot"><span></span></div>
+        <div class="print__sheet-wrap">
+          <PrintCard src={selectedStyle.image} alt="" class="print__sheet" />
+        </div>
+        <p class="print__now mono" data-print-now></p>
+      </div>
+
+      <div class="print__shelf">
+        <figure class="photo-frame">
+          <div class="photo-frame__window">
+            <PrintCard
+              src={selectedStyle.image}
+              alt={`Напечатанный снимок в рамке: ${selectedStyle.alt.toLowerCase()}`}
+              class="photo-frame__card"
+            />
+          </div>
+        </figure>
+        <div class="print__board" aria-hidden="true"></div>
+      </div>
+    </div>
+
+    <ol class="print__steps">
+      {
+        print.steps.map((step, i) => (
+          <li class="print__step" data-step={i} data-step-text={step}>
+            <span class="print__step-num mono" aria-hidden="true">
+              {String(i + 1).padStart(2, '0')}
+            </span>
+            <span class="print__step-text">
+              {step}
+              {i === 3 && (
+                <span class="print__step-note">
+                  Через бота{' '}
+                  <a href={`https://t.me/${bot}`} target="_blank" rel="noopener">
+                    @{bot}
+                  </a>
+                </span>
+              )}
+            </span>
+          </li>
+        ))
+      }
+    </ol>
+  </div>
+</section>
+
+<style>
+  .print {
+    --sheet-w: calc(var(--frame-w) * 0.82);
+    --window-w: calc(var(--frame-w) * 0.62);
+    position: relative;
+    z-index: 1;
+    padding-block: var(--section-pad);
+    background: var(--paper);
+  }
+
+  .print__pin {
+    position: relative;
+  }
+
+  .print__grid,
+  .print__pin {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-7);
+  }
+
+  @media (min-width: 900px) {
+    .print__pin {
+      display: contents;
+    }
+
+    .print__grid {
+      grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+      grid-template-areas:
+        'head steps'
+        'machine shelf';
+      column-gap: clamp(32px, 6vw, 96px);
+      row-gap: var(--space-6);
+    }
+
+    .print__head {
+      grid-area: head;
+    }
+
+    .print__steps {
+      grid-area: steps;
+      align-self: end;
+    }
+
+    .print__machine {
+      grid-area: machine;
+    }
+
+    .print__shelf {
+      grid-area: shelf;
+    }
+  }
+
+  .print__head {
+    display: grid;
+    gap: 14px;
+    align-content: start;
+  }
+
+  .print__title {
+    max-width: 14ch;
+    font-size: var(--fs-h2);
+    line-height: var(--lh-head);
+    letter-spacing: var(--tracking-head);
+  }
+
+  .print__lead {
+    max-width: 30em;
+    font-size: var(--fs-lead);
+    color: var(--ink-2);
+  }
+
+  /* ---------- Прорезь ---------- */
+  .print__machine {
+    position: relative;
+    min-height: calc(var(--sheet-w) * 1.02 + 80px);
+    border-radius: var(--radius-l);
+    background: linear-gradient(170deg, #f6f4ef 0%, #ece9e2 100%);
+    box-shadow:
+      inset 0 0 0 1px rgb(20 20 20 / 0.05),
+      inset 0 -30px 60px -40px rgb(20 20 20 / 0.18);
+  }
+
+  .print__slot {
+    position: absolute;
+    top: 40px;
+    left: 50%;
+    width: calc(var(--sheet-w) * 1.16);
+    height: 10px;
+    margin-left: calc(var(--sheet-w) * -0.58);
+    border-radius: 5px;
+    background: #0e0e0e;
+    box-shadow:
+      inset 0 3px 4px rgb(0 0 0 / 0.7),
+      0 1px 0 rgb(255 255 255 / 0.9);
+  }
+
+  .print__slot span {
+    position: absolute;
+    inset: 3px 6%;
+    border-radius: 2px;
+    background: linear-gradient(90deg, transparent, rgb(200 240 74 / 0.4), transparent);
+    opacity: 0;
+  }
+
+  /* Статичная версия: снимок наполовину вышел из прорези.
+     В анимированной версии положение задаёт скролл. */
+  .print__sheet-wrap {
+    position: absolute;
+    top: 45px;
+    left: 50%;
+    width: var(--sheet-w);
+    margin-left: calc(var(--sheet-w) / -2);
+    z-index: 4;
+    transform: translateY(-40%);
+    clip-path: inset(40% 0 0 0);
+  }
+
+  .print__now {
+    display: none;
+  }
+
+  /* ---------- Шаги ---------- */
+  .print__steps {
+    display: grid;
+    gap: 2px;
+    counter-reset: step;
+  }
+
+  .print__step {
+    display: grid;
+    grid-template-columns: 44px 1fr;
+    align-items: baseline;
+    padding: 14px 0;
+    border-top: 1px solid var(--line);
+    font-size: clamp(1.0625rem, 1.4vw, 1.3125rem);
+    line-height: 1.35;
+    letter-spacing: -0.01em;
+    transition:
+      color var(--dur-base) var(--ease-out),
+      opacity var(--dur-base) var(--ease-out);
+  }
+
+  .print__step:last-child {
+    border-bottom: 1px solid var(--line);
+  }
+
+  .print__step-num {
+    color: var(--ink-3);
+  }
+
+  .print__step-note {
+    display: block;
+    margin-top: 4px;
+    font-size: var(--fs-small);
+    color: var(--ink-2);
+  }
+
+  .print__step-note a {
+    display: inline-block;
+    padding-block: 10px;
+    margin-block: -10px;
+    font-weight: 500;
+    color: var(--violet-ink);
+    text-underline-offset: 3px;
+  }
+
+  /* ---------- Полочка с рамкой ---------- */
+  .print__shelf {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+  }
+
+  .photo-frame {
+    position: relative;
+    padding: calc(var(--window-w) * 0.07);
+    background: #1b1a18;
+    border-radius: 3px;
+    box-shadow:
+      inset 0 0 0 2px #2c2a27,
+      var(--shadow-lift);
+  }
+
+  .photo-frame__window {
+    width: var(--window-w);
+    padding: calc(var(--window-w) * 0.1);
+    background: #f7f5f0;
+    box-shadow: inset 0 2px 6px rgb(0 0 0 / 0.18);
+  }
+
+  .photo-frame__window :global(.photo-frame__card) {
+    --print-shadow: none;
+  }
+
+  .print__board {
+    width: min(100%, calc(var(--window-w) * 2.6));
+    height: 14px;
+    border-radius: 2px;
+    background: linear-gradient(180deg, #e9e5dc 0%, #d8d3c7 100%);
+    box-shadow: 0 14px 24px -12px rgb(20 20 20 / 0.35);
+  }
+
+  /* ---------- Анимированная версия ---------- */
+  /* Только clip-path: CSS-transform сложился бы со сдвигом из GSAP */
+  :global(.motion) .print__sheet-wrap {
+    transform: none;
+    clip-path: inset(100% 0 0 0);
+    will-change: transform, clip-path;
+  }
+
+  :global(.motion) .photo-frame__window :global(.photo-frame__card) {
+    opacity: 0;
+  }
+
+  /* Неактивные шаги приглушены цветом, а не прозрачностью — контраст ≥ 4.5:1 */
+  :global(.motion) .print__step {
+    color: var(--ink-3);
+  }
+
+  :global(.motion) .print__step.is-done {
+    color: var(--ink-2);
+  }
+
+  :global(.motion) .print__step.is-active {
+    color: var(--ink);
+  }
+
+  :global(.motion) .print__step.is-active .print__step-num {
+    color: var(--violet);
+  }
+
+  @media (min-width: 900px) {
+    :global(.motion) .print {
+      height: 100svh;
+      padding-block: clamp(20px, 5svh, 56px);
+    }
+
+    :global(.motion) .print__grid {
+      height: 100%;
+      grid-template-rows: auto minmax(0, 1fr);
+    }
+
+    :global(.motion) .print__machine {
+      min-height: 0;
+    }
+
+    :global(.motion) .print__title {
+      font-size: clamp(2rem, 4.2vw, 4rem);
+    }
+  }
+
+  @media (max-width: 899px) {
+    .print {
+      --sheet-w: calc(var(--frame-w) * 0.62);
+      --window-w: calc(var(--frame-w) * 0.46);
+    }
+
+    /* Закрепляется только .print__pin; вместо полного списка шагов в нём —
+       строка текущего шага, полный список идёт сразу после. */
+    :global(.motion) .print {
+      padding-top: 0;
+    }
+
+    :global(.motion) .print__pin {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      height: 100svh;
+      padding-block: clamp(16px, 4svh, 32px) 16px;
+      background: var(--paper);
+    }
+
+    :global(.motion) .print__lead {
+      display: none;
+    }
+
+    :global(.motion) .print__title {
+      max-width: none;
+      font-size: clamp(1.625rem, 7.4vw, 2.25rem);
+    }
+
+    :global(.motion) .print__machine {
+      flex: 1;
+      min-height: calc(var(--sheet-w) * 1.48 + 84px);
+    }
+
+    :global(.motion) .print__now {
+      display: block;
+      position: absolute;
+      left: 16px;
+      right: 16px;
+      bottom: 12px;
+      color: var(--ink-2);
+      text-align: center;
+    }
+  }
+</style>

@@ -1,0 +1,296 @@
+---
+import { Picture } from 'astro:assets';
+import Button from '../ui/Button.astro';
+import PrintCard from '../ui/PrintCard.astro';
+import { asset } from '../../lib/images';
+import { models, phAttr, selectedStyle, site, val } from '../../data';
+
+const { equipment } = site;
+const total = models.length;
+const pad = (n: number) => String(n).padStart(2, '0');
+const rub = new Intl.NumberFormat('ru-RU', { style: 'currency', currency: 'RUB', maximumFractionDigits: 0 });
+---
+
+<section class="equip" id="equipment" aria-labelledby="equip-title">
+  <div class="container">
+    <header class="equip__head">
+      <p class="kicker" style="--kicker-dot: var(--coral)">{equipment.kicker}</p>
+      <h2 class="equip__title" id="equip-title">{equipment.title}</h2>
+      <p class="equip__lead">{equipment.lead}</p>
+    </header>
+
+    <div
+      class="carousel"
+      data-carousel
+      role="region"
+      aria-roledescription="карусель"
+      aria-label="Модели фотобудок"
+      tabindex={total > 1 ? 0 : undefined}
+    >
+      <div class="carousel__track" data-carousel-track>
+        {
+          models.map((m, i) => {
+            const name = val(m.name);
+            return (
+              <div
+                class="model"
+                role="group"
+                aria-roledescription="слайд"
+                aria-label={`${name}, ${i + 1} из ${total}`}
+                data-carousel-slide
+                data-model-name={name}
+              >
+                <div class="model__media">
+                  <Picture
+                    src={asset(m.image)}
+                    alt={m.imageAlt}
+                    widths={[300, 600]}
+                    sizes="(max-width: 767px) 60vw, 300px"
+                    formats={['avif', 'webp']}
+                    loading="lazy"
+                    class="model__img"
+                    {...phAttr(m.image)}
+                  />
+                  {i === 0 && <PrintCard src={selectedStyle.image} alt="" class="model__print" />}
+                </div>
+
+                <div class="model__info">
+                  <p class="model__index mono">
+                    Модель {pad(i + 1)} / {pad(total)}
+                  </p>
+                  <h3 class="model__name" {...phAttr(m.name)}>
+                    {name}
+                  </h3>
+                  <p class="model__price" {...phAttr(m.price)}>
+                    {m.price !== undefined ? rub.format(val(m.price)) : equipment.priceOnRequest}
+                  </p>
+                  <p class="model__desc" {...phAttr(m.description)}>
+                    {val(m.description)}
+                  </p>
+                  <dl class="model__specs">
+                    {m.specs.map((s) => (
+                      <div class="model__spec" {...phAttr(s.value)}>
+                        <dt>{s.label}</dt>
+                        <dd>{val(s.value)}</dd>
+                      </div>
+                    ))}
+                  </dl>
+                  <Button href="#lead" data-pick-model={name}>
+                    {equipment.cta}
+                  </Button>
+                </div>
+              </div>
+            );
+          })
+        }
+      </div>
+
+      {
+        total > 1 && (
+          <div class="carousel__controls">
+            <button class="carousel__btn" type="button" data-carousel-prev aria-label="Предыдущая модель">
+              <svg aria-hidden="true" viewBox="0 0 20 20" width="20" height="20"><path d="M16 10H5m4.5-4.5L5 10l4.5 4.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" /></svg>
+            </button>
+            <p class="carousel__count mono" aria-hidden="true">
+              <span data-carousel-current>01</span> / {pad(total)}
+            </p>
+            <button class="carousel__btn" type="button" data-carousel-next aria-label="Следующая модель">
+              <svg aria-hidden="true" viewBox="0 0 20 20" width="20" height="20"><path d="M4 10h11m-4.5-4.5L15 10l-4.5 4.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" /></svg>
+            </button>
+          </div>
+        )
+      }
+      <p class="visually-hidden" aria-live="polite" data-carousel-live></p>
+    </div>
+  </div>
+</section>
+
+<style>
+  .equip {
+    position: relative;
+    padding-block: var(--section-pad);
+    background: var(--milk);
+  }
+
+  .equip__head {
+    display: grid;
+    gap: 14px;
+    margin-bottom: var(--space-7);
+  }
+
+  .equip__title {
+    max-width: 16ch;
+    font-size: var(--fs-h2);
+    line-height: var(--lh-head);
+    letter-spacing: var(--tracking-head);
+  }
+
+  .equip__lead {
+    max-width: 36em;
+    font-size: var(--fs-lead);
+    color: var(--ink-2);
+  }
+
+  /* ---------- Карусель ---------- */
+  .carousel {
+    position: relative;
+    border-radius: var(--radius-l);
+  }
+
+  .carousel__track {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+    border-radius: var(--radius-l);
+    background: var(--paper);
+    box-shadow: var(--shadow-paper);
+  }
+
+  .carousel__track::-webkit-scrollbar {
+    display: none;
+  }
+
+  .model {
+    flex: 0 0 100%;
+    scroll-snap-align: start;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  @media (min-width: 900px) {
+    .model {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+    }
+  }
+
+  .model__media {
+    position: relative;
+    display: grid;
+    place-items: center;
+    min-height: 420px;
+    padding: clamp(24px, 4vw, 56px);
+    background: #fff;
+    border-radius: var(--radius-l) var(--radius-l) 0 0;
+  }
+
+  @media (min-width: 900px) {
+    .model__media {
+      border-radius: var(--radius-l) 0 0 var(--radius-l);
+      box-shadow: inset -1px 0 0 var(--line);
+    }
+  }
+
+  .model__media :global(.model__img) {
+    width: min(100%, 300px);
+    height: auto;
+    aspect-ratio: 300 / 560;
+    object-fit: contain;
+  }
+
+  /* Отпечаток из сцены «Печать» стоит рядом с будкой */
+  .model__media :global(.model__print) {
+    position: absolute;
+    left: clamp(16px, 8%, 72px);
+    bottom: clamp(20px, 7%, 56px);
+    width: clamp(78px, 22%, 132px);
+    transform: rotate(-6deg);
+  }
+
+  .model__info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+    padding: clamp(24px, 4vw, 56px);
+  }
+
+  .model__index {
+    color: var(--ink-3);
+  }
+
+  .model__name {
+    font-size: clamp(2.5rem, 5vw, 4.5rem);
+    line-height: 0.95;
+    letter-spacing: var(--tracking-display);
+  }
+
+  .model__price {
+    display: inline-flex;
+    padding: 6px 14px;
+    border-radius: var(--radius-pill);
+    background: var(--lime);
+    font-weight: 500;
+  }
+
+  .model__desc {
+    max-width: 32em;
+    color: var(--ink-2);
+  }
+
+  .model__specs {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 200px), 1fr));
+    gap: 0 24px;
+    width: 100%;
+    margin-block: 8px 12px;
+  }
+
+  .model__spec {
+    display: grid;
+    gap: 2px;
+    padding-block: 12px;
+    border-top: 1px solid var(--line);
+  }
+
+  .model__spec dt {
+    font-family: var(--font-mono);
+    font-size: var(--fs-mono);
+    letter-spacing: var(--tracking-mono);
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+
+  .model__spec dd {
+    margin: 0;
+    font-weight: 500;
+  }
+
+  .model__info :global(.btn) {
+    margin-top: auto;
+  }
+
+  .carousel__controls {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 16px;
+    margin-top: var(--space-5);
+  }
+
+  .carousel__btn {
+    display: grid;
+    place-items: center;
+    width: 52px;
+    height: 52px;
+    border: 0;
+    border-radius: 50%;
+    background: var(--paper);
+    box-shadow: inset 0 0 0 1px var(--line-strong);
+    transition: background-color var(--dur-base) var(--ease-out);
+  }
+
+  .carousel__btn:hover:not(:disabled) {
+    background: var(--lime);
+  }
+
+  .carousel__btn:disabled {
+    opacity: 0.35;
+    cursor: default;
+  }
+
+  .carousel__count {
+    color: var(--ink-2);
+  }
+</style>

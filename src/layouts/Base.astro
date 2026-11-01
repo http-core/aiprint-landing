@@ -1,0 +1,50 @@
+---
+import { Font } from 'astro:assets';
+import '../styles/global.css';
+import { site } from '../data';
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+const { title = site.meta.title, description = site.meta.description } = Astro.props;
+const canonical = Astro.site ? new URL(Astro.url.pathname, Astro.site).href : undefined;
+---
+
+<!doctype html>
+<html lang="ru" class:list={[{ 'is-dev': import.meta.env.DEV }]}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    {canonical && <link rel="canonical" href={canonical} />}
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:locale" content="ru_RU" />
+    <meta name="theme-color" content="#faf8f3" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <Font cssVariable="--font-sans" preload />
+    <Font cssVariable="--font-serif" />
+    <Font cssVariable="--font-mono" />
+    <!--
+      Класс .motion включается до первой отрисовки, чтобы не было «мигания» финальных
+      состояний. Если анимации не загрузились за 5 с — откатываемся к статичной версии.
+    -->
+    <script is:inline>
+      (function () {
+        var d = document.documentElement;
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+        d.classList.add('motion');
+        setTimeout(function () {
+          if (!window.__motionReady) d.classList.remove('motion');
+        }, 5000);
+      })();
+    </script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Перейти к содержанию</a>
+    <slot />
+  </body>
+</html>
