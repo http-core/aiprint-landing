@@ -36,38 +36,53 @@ npm start          # node dist/server/entry.mjs
 **Как узнать `TELEGRAM_CHAT_ID`:** добавьте бота в нужный чат, напишите в чат любое сообщение и
 откройте `https://api.telegram.org/bot<TOKEN>/getUpdates` — значение `chat.id`.
 
-## Деплой за nginx
+## CI и Docker-образ
+
+GitHub Actions (`.github/workflows/ci.yml`) на каждый PR и пуш:
+
+1. проверка типов и unit-тесты;
+2. e2e в Chrome, Safari (WebKit) и эмуляции iPhone;
+3. сборка Docker-образа. Из `main` и тегов `v*` он публикуется в GitHub Container Registry:
+   `ghcr.io/http-core/aiprint-landing` с тегами `latest`, `main`, `sha-xxxxxxx`, а для тега `v1.2.0` — ещё `1.2.0` и `1.2`.
+
+Локально: `docker build -t aiprint-landing . && docker run -p 4321:4321 --env-file .env aiprint-landing`.
+
+## Деплой на VPS (Docker + nginx)
+
+Готовые файлы — в `deploy/`.
+
+**Один раз на сервере:**
 
 ```bash
-npm ci && npm run build
-HOST=127.0.0.1 PORT=4321 TRUST_PROXY=1 TELEGRAM_BOT_TOKEN=… TELEGRAM_CHAT_ID=… node dist/server/entry.mjs
+# 1. Docker (если ещё нет): https://docs.docker.com/engine/install/
+# 2. Если репозиторий приватный — вход в GHCR токеном GitHub с правом read:packages
+echo <TOKEN> | docker login ghcr.io -u <github-user> --password-stdin
+
+# 3. Папка сайта
+mkdir -p /opt/aiprint && cd /opt/aiprint
+#    скопируйте сюда deploy/docker-compose.yml и создайте .env:
+#    TELEGRAM_BOT_TOKEN=…
+#    TELEGRAM_CHAT_ID=…
+#    SITE_URL=https://example.ru
+
+# 4. nginx: deploy/nginx.conf → /etc/nginx/sites-available/aiprint (замените example.ru)
+ln -s /etc/nginx/sites-available/aiprint /etc/nginx/sites-enabled/
+nginx -t && systemctl reload nginx
+certbot --nginx -d example.ru -d www.example.ru   # HTTPS
 ```
 
-```nginx
-server {
-  server_name example.ru;
-  # listen 443 ssl; ssl_certificate …;
+**Запуск и обновление:**
 
-  gzip on;
-  gzip_types text/css application/javascript application/json image/svg+xml;
-
-  location /_astro/ {
-    proxy_pass http://127.0.0.1:4321;
-    add_header Cache-Control "public, max-age=31536000, immutable";
-  }
-
-  location / {
-    proxy_pass http://127.0.0.1:4321;
-    proxy_set_header Host $host;
-    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-    proxy_set_header X-Forwarded-Proto $scheme;
-  }
-}
+```bash
+cd /opt/aiprint
+docker compose pull && docker compose up -d
+docker compose logs -f web      # логи (в т.ч. ошибки доставки в Telegram)
 ```
 
-Node-сервер не сжимает ответы — включите gzip/brotli в nginx (Lighthouse без сжатия: −130 КБ).
-Лимит заявок (5 за 10 минут с IP) хранится в памяти процесса: запускайте один процесс
-или вынесите лимит в Redis. Откат — запуск предыдущей сборки `dist/`.
+Откат — указать в `docker-compose.yml` предыдущий тег (`sha-xxxxxxx` или `1.2.0`) и снова `up -d`.
+
+Контейнер слушает только `127.0.0.1:4321`, наружу сайт отдаёт nginx (gzip, кэш `/_astro/`, HTTPS).
+Лимит заявок (5 за 10 минут с IP) хранится в памяти контейнера — запускайте одну реплику.
 
 ## Как менять контент
 
