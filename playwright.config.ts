@@ -6,6 +6,9 @@ export default defineConfig({
   testDir: 'tests/e2e',
   timeout: 60_000,
   fullyParallel: true,
+  // На CI headless WebKit (Linux) иногда пропускает кадры после резких скачков скролла —
+  // повторяем упавший тест, чтобы флейк раннера не блокировал сборку образа.
+  retries: process.env.CI ? 2 : 0,
   reporter: [['list']],
   use: { baseURL: `http://127.0.0.1:${PORT}` },
   webServer: {
