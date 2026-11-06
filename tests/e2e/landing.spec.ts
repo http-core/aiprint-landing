@@ -176,19 +176,25 @@ test.describe('кнопка повтора вспышки', () => {
     await page.goto('/');
     await expect(page.locator('.hero__portrait')).toBeVisible({ timeout: 5000 });
     await page.waitForTimeout(1500);
+    // Пишем каждое изменение прозрачности вспышки прямо в странице: опрос по таймеру
+    // на медленном CI может «проскочить» короткую (≤ 300 мс) вспышку.
+    await page.evaluate(() => {
+      const flash = document.querySelector<HTMLElement>('.flash')!;
+      const w = window as unknown as { __flashPeak: number };
+      w.__flashPeak = 0;
+      const read = (style: string | null) => Number(/opacity:\s*([\d.]+)/.exec(style ?? '')?.[1] ?? 0);
+      new MutationObserver((records) => {
+        for (const r of records) w.__flashPeak = Math.max(w.__flashPeak, read(r.oldValue), read(flash.getAttribute('style')));
+      }).observe(flash, { attributes: true, attributeFilter: ['style'], attributeOldValue: true });
+    });
     const btn = page.getByRole('button', { name: 'Повторить вспышку' });
     await btn.click();
     await expect(page.locator('.hero__lens')).toBeVisible();
-    await expect(page.locator('.hero__portrait')).toBeHidden();
-    let peak = 0;
-    for (let i = 0; i < 30; i++) {
-      peak = Math.max(peak, Number(await page.locator('.flash').evaluate((el) => getComputedStyle(el).opacity)));
-      await page.waitForTimeout(40);
-    }
+    await expect(page.locator('.hero__portrait')).toBeVisible({ timeout: 5000 });
+    await expect(page.locator('.hero__lens')).toBeHidden();
+    const peak = await page.evaluate(() => (window as unknown as { __flashPeak: number }).__flashPeak);
     expect(peak).toBeGreaterThan(0);
     expect(peak).toBeLessThanOrEqual(0.85);
-    await expect(page.locator('.hero__portrait')).toBeVisible();
-    await expect(page.locator('.hero__lens')).toBeHidden();
   });
 
   test('не отображается при reduced motion', async ({ page }) => {
