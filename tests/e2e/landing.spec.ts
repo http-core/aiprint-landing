@@ -91,16 +91,26 @@ test.describe('сквозной сценарий', () => {
     const mid = Math.round(top + (h - 900) * 0.5);
     const read = () =>
       page.locator('.print__sheet-wrap').evaluate((el) => getComputedStyle(el).transform + getComputedStyle(el).clipPath);
+    // Ждём, пока сглаживание скролла (scrub) досчитает: два одинаковых чтения подряд.
+    // Фиксированная пауза на медленном CI иногда снимала промежуточный кадр.
+    const settled = async () => {
+      let prev = await read();
+      for (let i = 0; i < 40; i++) {
+        await page.waitForTimeout(150);
+        const cur = await read();
+        if (cur === prev) return cur;
+        prev = cur;
+      }
+      throw new Error('анимация не остановилась');
+    };
     await page.evaluate((y) => scrollTo(0, y), mid);
-    await page.waitForTimeout(900);
-    const first = await read();
+    const first = await settled();
     await page.evaluate((y) => scrollTo(0, y), top - 400);
-    await page.waitForTimeout(600);
+    await settled();
     await page.evaluate((y) => scrollTo(0, y), top + h);
-    await page.waitForTimeout(600);
+    await settled();
     await page.evaluate((y) => scrollTo(0, y), mid);
-    await page.waitForTimeout(900);
-    expect(await read()).toBe(first);
+    expect(await settled()).toBe(first);
   });
 
   test('доступность: axe без серьёзных нарушений', async ({ page }) => {
