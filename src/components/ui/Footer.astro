@@ -8,9 +8,12 @@ const contact = val(site.telegramContact);
     <p class="footer__brand">{site.brand}</p>
     <ul class="footer__links">
       <li><a href={`https://t.me/${contact}`} target="_blank" rel="noopener">Telegram · @{contact}</a></li>
+      <li><a href={`mailto:${site.company.email}`}>{site.company.email}</a></li>
       <li><a href="/privacy">Политика конфиденциальности</a></li>
     </ul>
-    <p class="footer__copy mono">© {new Date().getFullYear()}</p>
+    <p class="footer__legal">
+      © {new Date().getFullYear()} {site.company.name}<span aria-hidden="true"> · </span><br class="footer__br" />ОГРНИП {site.company.ogrnip} · ИНН {site.company.inn}
+    </p>
   </div>
 </footer>
 
@@ -52,7 +55,25 @@ const contact = val(site.telegramContact);
     color: var(--lime);
   }
 
-  .footer__copy {
-    color: rgb(250 248 243 / 0.5);
+  .footer__legal {
+    flex-basis: 100%;
+    padding-top: 16px;
+    border-top: 1px solid rgb(250 248 243 / 0.12);
+    font-size: var(--fs-small);
+    color: rgb(250 248 243 / 0.62);
+  }
+
+  .footer__br {
+    display: none;
+  }
+
+  @media (max-width: 559px) {
+    .footer__legal span {
+      display: none;
+    }
+
+    .footer__br {
+      display: inline;
+    }
   }
 </style>

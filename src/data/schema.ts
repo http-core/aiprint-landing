@@ -97,15 +97,25 @@ export const siteSchema = z.object({
     priceOnRequest: z.string(),
     cta: z.string(),
   }),
+  faq: z.object({
+    kicker: z.string(),
+    title: z.string(),
+    items: z.array(z.object({ q: z.string().min(1), a: field(z.string().min(1)) })).min(1),
+  }),
   lead: z.object({
     kicker: z.string(),
     title: z.string(),
     subtitle: z.string(),
     submit: z.string(),
   }),
+  /** Продавец и оператор персональных данных */
+  company: z.object({
+    name: z.string().min(1),
+    ogrnip: z.string().regex(/^\d{15}$/, 'ОГРНИП — 15 цифр'),
+    inn: z.string().regex(/^\d{12}$/, 'ИНН ИП — 12 цифр'),
+    email: z.email(),
+  }),
   privacy: z.object({
-    operator: field(z.string()),
-    email: field(z.string()),
     body: field(z.array(z.string()).min(1)),
   }),
 });

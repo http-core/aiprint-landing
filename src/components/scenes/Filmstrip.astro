@@ -1,6 +1,7 @@
 ---
 import Portrait from '../ui/Portrait.astro';
 import { site, styles, val, phAttr, variantStyles } from '../../data';
+import sparkle from '../../assets/pixel/sparkle.svg?url';
 
 const { film } = site;
 const pad = (n: number) => String(n).padStart(2, '0');
@@ -45,6 +46,12 @@ const pad = (n: number) => String(n).padStart(2, '0');
                 <figure>
                   <div class="variant__photo">
                     <Portrait src={s.image} alt={s.alt} class="variant__img" />
+                    {selected && (
+                      <span class="variant__sparkles" aria-hidden="true">
+                        <img src={sparkle} alt="" width="28" height="28" />
+                        <img src={sparkle} alt="" width="16" height="16" />
+                      </span>
+                    )}
                   </div>
                   <figcaption class="variant__caption">
                     <span {...phAttr(s.name)}>{val(s.name)}</span>
@@ -212,6 +219,23 @@ const pad = (n: number) => String(n).padStart(2, '0');
     box-shadow: var(--shadow-paper);
   }
 
+  /* Пиксельные искры из интерфейса будки */
+  .variant__sparkles img {
+    position: absolute;
+    z-index: 1;
+    image-rendering: pixelated;
+  }
+
+  .variant__sparkles img:first-child {
+    top: -14px;
+    right: -14px;
+  }
+
+  .variant__sparkles img:last-child {
+    top: 18px;
+    right: -26px;
+  }
+
   .variant.is-selected .variant__photo {
     outline: 3px solid var(--lime);
     outline-offset: 5px;
@@ -253,7 +277,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
 
   :global(.motion) .film__title {
     max-width: none;
-    font-size: clamp(1.625rem, 3.4vw, 3.25rem);
+    font-size: clamp(1.375rem, 2.8vw, 2.75rem);
   }
 
   :global(.motion) .film__viewport {
@@ -305,7 +329,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
   :global(.motion) .variants__title {
     max-width: none;
     text-align: center;
-    font-size: clamp(1.5rem, 3vw, 2.75rem);
+    font-size: clamp(1.25rem, 2.5vw, 2.375rem);
   }
 
   :global(.motion) .variants__grid {

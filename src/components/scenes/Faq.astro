@@ -1,0 +1,199 @@
+---
+import { phAttr, site, val } from '../../data';
+
+const { faq } = site;
+
+// Микроразметка FAQPage — те же вопросы и ответы, что видны на странице
+const jsonLd = JSON.stringify({
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: faq.items.map((it) => ({
+    '@type': 'Question',
+    name: it.q,
+    acceptedAnswer: { '@type': 'Answer', text: val(it.a) },
+  })),
+}).replace(/</g, '\\u003c');
+---
+
+<section class="faq" id="faq" aria-labelledby="faq-title">
+  <div class="faq__grid container">
+    <header class="faq__head">
+      <p class="kicker" style="--kicker-dot: var(--violet)">{faq.kicker}</p>
+      <h2 class="faq__title" id="faq-title">{faq.title}</h2>
+      <p class="faq__more">
+        Не нашли ответ? <a href="#lead">Задайте вопрос в заявке</a> — ответим лично.
+      </p>
+    </header>
+
+    <div class="faq__list">
+      {
+        faq.items.map((it) => (
+          <details class="faq__item" name="faq">
+            <summary class="faq__q">
+              <span>{it.q}</span>
+              <span class="faq__icon" aria-hidden="true" />
+            </summary>
+            <div class="faq__a" {...phAttr(it.a)}>
+              <p>{val(it.a)}</p>
+            </div>
+          </details>
+        ))
+      }
+    </div>
+  </div>
+  <script type="application/ld+json" is:inline set:html={jsonLd} />
+</section>
+
+<style>
+  .faq {
+    padding-block: var(--section-pad);
+    background: var(--milk);
+  }
+
+  .faq__grid {
+    display: grid;
+    gap: var(--space-7);
+  }
+
+  @media (min-width: 960px) {
+    .faq__grid {
+      grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+      gap: clamp(48px, 7vw, 120px);
+      align-items: start;
+    }
+
+    .faq__head {
+      position: sticky;
+      top: 48px;
+    }
+  }
+
+  .faq__head {
+    display: grid;
+    gap: 16px;
+  }
+
+  .faq__title {
+    max-width: 16ch;
+    font-size: clamp(1.625rem, 3.2vw, 3.25rem);
+    line-height: var(--lh-head);
+    letter-spacing: var(--tracking-head);
+  }
+
+  .faq__more {
+    color: var(--ink-2);
+  }
+
+  .faq__more a {
+    color: var(--violet-ink);
+    font-weight: 500;
+    text-underline-offset: 3px;
+  }
+
+  .faq__list {
+    border-top: 1px solid var(--line-strong);
+  }
+
+  .faq__item {
+    border-bottom: 1px solid var(--line-strong);
+  }
+
+  .faq__q {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    min-height: 64px;
+    padding-block: 18px;
+    font-size: clamp(1.0625rem, 1.4vw, 1.25rem);
+    font-weight: 500;
+    line-height: 1.35;
+    letter-spacing: -0.01em;
+    cursor: pointer;
+    list-style: none;
+  }
+
+  .faq__q::-webkit-details-marker {
+    display: none;
+  }
+
+  .faq__q:focus-visible {
+    outline-offset: 4px;
+  }
+
+  /* Плюс → минус; кружок становится кислотно-жёлтым у открытого вопроса */
+  .faq__icon {
+    position: relative;
+    flex: none;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    box-shadow: inset 0 0 0 1px var(--line-strong);
+    transition:
+      background-color var(--dur-base) var(--ease-out),
+      box-shadow var(--dur-base) var(--ease-out);
+  }
+
+  .faq__icon::before,
+  .faq__icon::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 12px;
+    height: 1.6px;
+    margin: -0.8px 0 0 -6px;
+    border-radius: 1px;
+    background: currentColor;
+    transition: transform var(--dur-base) var(--ease-out);
+  }
+
+  .faq__icon::after {
+    transform: rotate(90deg);
+  }
+
+  .faq__q:hover .faq__icon {
+    box-shadow: inset 0 0 0 1px var(--ink);
+  }
+
+  .faq__item[open] .faq__icon {
+    background: var(--lime);
+    box-shadow: none;
+  }
+
+  .faq__item[open] .faq__icon::after {
+    transform: rotate(0deg);
+  }
+
+  .faq__a {
+    padding: 0 60px 24px 0;
+    color: var(--ink-2);
+    font-size: 1.0625rem;
+    line-height: 1.6;
+  }
+
+  @media (max-width: 559px) {
+    .faq__a {
+      padding-right: 0;
+    }
+  }
+
+  /* Плавное раскрытие там, где браузер умеет анимировать details (иначе — мгновенно) */
+  @supports (interpolate-size: allow-keywords) {
+    .faq__item {
+      interpolate-size: allow-keywords;
+    }
+
+    .faq__item::details-content {
+      height: 0;
+      overflow: clip;
+      transition:
+        height var(--dur-slow) var(--ease-out),
+        content-visibility var(--dur-slow) allow-discrete;
+    }
+
+    .faq__item[open]::details-content {
+      height: auto;
+    }
+  }
+</style>

@@ -10,8 +10,9 @@ const { privacy } = site;
   <main id="main" class="legal container">
     <a class="legal__back" href="/">← На главную</a>
     <h1 class="legal__title">Политика обработки персональных данных</h1>
-    <p class="legal__operator" {...phAttr(privacy.operator, privacy.email)}>
-      Оператор: {val(privacy.operator)}. Контакт: <a href={`mailto:${val(privacy.email)}`}>{val(privacy.email)}</a>
+    <p class="legal__operator">
+      Оператор: {site.company.name}, ОГРНИП {site.company.ogrnip}, ИНН {site.company.inn}.{' '}
+      Контакт: <a href={`mailto:${site.company.email}`}>{site.company.email}</a>
     </p>
     <div class="legal__body" {...phAttr(privacy.body)}>
       {val(privacy.body).map((p) => <p>{p}</p>)}

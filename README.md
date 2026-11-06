@@ -47,42 +47,28 @@ GitHub Actions (`.github/workflows/ci.yml`) на каждый PR и пуш:
 
 Локально: `docker build -t aiprint-landing . && docker run -p 4321:4321 --env-file .env aiprint-landing`.
 
-## Деплой на VPS (Docker + nginx)
+## Деплой (aifotobudka.ru)
 
-Готовые файлы — в `deploy/`.
+Сайт работает на VPS рядом с другими проектами: nginx в контейнере (`conf/` → `/etc/nginx/conf.d`,
+сертификаты certbot из `/etc/letsencrypt`), лендинг — сервисом `landing` в том же `compose.yml`.
+Готовые файлы — в `deploy/`:
 
-**Один раз на сервере:**
-
-```bash
-# 1. Docker (если ещё нет): https://docs.docker.com/engine/install/
-# 2. Если репозиторий приватный — вход в GHCR токеном GitHub с правом read:packages
-echo <TOKEN> | docker login ghcr.io -u <github-user> --password-stdin
-
-# 3. Папка сайта
-mkdir -p /opt/aiprint && cd /opt/aiprint
-#    скопируйте сюда deploy/docker-compose.yml и создайте .env:
-#    TELEGRAM_BOT_TOKEN=…
-#    TELEGRAM_CHAT_ID=…
-#    SITE_URL=https://example.ru
-
-# 4. nginx: deploy/nginx.conf → /etc/nginx/sites-available/aiprint (замените example.ru)
-ln -s /etc/nginx/sites-available/aiprint /etc/nginx/sites-enabled/
-nginx -t && systemctl reload nginx
-certbot --nginx -d example.ru -d www.example.ru   # HTTPS
-```
-
-**Запуск и обновление:**
+- `deploy/compose.landing.yml` — сервис `landing`, добавить в `compose.yml` на сервере;
+- `deploy/aifotobudka.conf` — положить в `conf/` (сначала выпустить сертификат!).
 
 ```bash
-cd /opt/aiprint
-docker compose pull && docker compose up -d
-docker compose logs -f web      # логи (в т.ч. ошибки доставки в Telegram)
+# landing.env рядом с compose.yml
+TELEGRAM_BOT_TOKEN=…
+TELEGRAM_CHAT_ID=…
+
+docker compose up -d landing                 # поднять лендинг
+docker compose exec nginx nginx -t && docker compose exec nginx nginx -s reload
+docker compose logs -f landing               # логи (в т.ч. ошибки доставки в Telegram)
 ```
 
-Откат — указать в `docker-compose.yml` предыдущий тег (`sha-xxxxxxx` или `1.2.0`) и снова `up -d`.
-
-Контейнер слушает только `127.0.0.1:4321`, наружу сайт отдаёт nginx (gzip, кэш `/_astro/`, HTTPS).
-Лимит заявок (5 за 10 минут с IP) хранится в памяти контейнера — запускайте одну реплику.
+Обновление: поменять тег образа (`sha-xxxxxxx` из CI) и `docker compose up -d landing`.
+Откат — вернуть предыдущий тег. Лимит заявок хранится в памяти — одна реплика.
+Если пакет в GHCR приватный — один раз `docker login ghcr.io` с токеном `read:packages`.
 
 ## Как менять контент
 
@@ -126,7 +112,7 @@ docker compose logs -f web      # логи (в т.ч. ошибки достав�
 2. **AI-портреты:** исходное фото и готовые стили (сейчас 8 сгенерированных заглушек).
 3. **Характеристики, описание и цена «Будки 1.0»** — сейчас выдуманы и помечены как заглушки.
 4. **Фото будки** лучшего качества.
-5. **Текст политики обработки ПДн** и реквизиты оператора (`/privacy` — заглушка).
+5. **Текст политики обработки ПДн** и email оператора (реквизиты ИП уже на сайте, текст `/privacy` — заглушка).
 6. **Контакт для «написать напрямую»** — сейчас @AI66Robot (помечен как заглушка).
 7. Цифры с оклейки («100+ стилей») на сайт не выводятся, пока не подтверждены.
 

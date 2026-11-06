@@ -1,5 +1,7 @@
 ---
+import { Picture } from 'astro:assets';
 import { site, val, phAttr } from '../../data';
+import deal from '../../assets/lead/deal.png';
 import { LIMITS } from '../../lib/lead-validation';
 
 const { lead } = site;
@@ -13,9 +15,22 @@ const contact = val(site.telegramContact);
       <h2 class="leadsec__title" id="lead-title">{lead.title}</h2>
       <p class="leadsec__sub">{lead.subtitle}</p>
       <p class="leadsec__alt">
-        Удобнее в мессенджере? Напишите в Telegram:{' '}
+        Удобнее написать напрямую? Telegram{' '}
         <a href={`https://t.me/${contact}`} target="_blank" rel="noopener" {...phAttr(site.telegramContact)}>@{contact}</a>
+        {' '}или почта{' '}
+        <a href={`mailto:${site.company.email}`}>{site.company.email}</a>
       </p>
+      <div class="leadsec__art" aria-hidden="true">
+        <Picture
+          src={deal}
+          alt=""
+          widths={[360, 540, 720, 903]}
+          sizes="(max-width: 959px) 320px, 440px"
+          formats={['avif', 'webp']}
+          loading="lazy"
+          class="leadsec__art-img"
+        />
+      </div>
     </div>
 
     <div class="leadsec__card">
@@ -136,6 +151,34 @@ const contact = val(site.telegramContact);
   .leadsec__intro {
     display: grid;
     gap: 18px;
+  }
+
+  /* Иллюстрация «договорились» на фирменной плашке; фигуры обрезаны её нижним краем */
+  .leadsec__art {
+    position: relative;
+    overflow: hidden;
+    width: min(100%, 440px);
+    aspect-ratio: 1 / 0.82;
+    margin-top: 12px;
+    border-radius: var(--radius-l);
+    background:
+      radial-gradient(120% 90% at 50% 100%, rgb(255 255 255 / 0.55), transparent 60%),
+      var(--lime);
+  }
+
+  .leadsec__art :global(.leadsec__art-img) {
+    position: absolute;
+    left: 50%;
+    bottom: -9%;
+    width: 84%;
+    height: auto;
+    transform: translateX(-50%);
+  }
+
+  @media (max-width: 959px) {
+    .leadsec__art {
+      width: min(100%, 320px);
+    }
   }
 
   .leadsec__title {

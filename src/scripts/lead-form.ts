@@ -17,7 +17,8 @@ export function initLeadForm() {
   const chip = form.querySelector<HTMLElement>('[data-model-chip]')!;
   const chipName = chip.querySelector<HTMLElement>('[data-model-name]')!;
   const modelInput = form.elements.namedItem('model') as HTMLInputElement;
-  const contactLink = document.querySelector<HTMLAnchorElement>('.leadsec__alt a');
+  const contactLink = document.querySelector<HTMLAnchorElement>('.leadsec__alt a[href*="t.me"]');
+  const mailLink = document.querySelector<HTMLAnchorElement>('.leadsec__alt a[href^="mailto:"]');
 
   let state: State = 'idle';
 
@@ -33,8 +34,13 @@ export function initLeadForm() {
     status.innerHTML = html;
   };
 
-  const tgFallback = () =>
-    contactLink ? ` Или напишите нам в Telegram: <a href="${contactLink.href}" target="_blank" rel="noopener">${contactLink.textContent}</a>.` : '';
+  const tgFallback = () => {
+    const links = [
+      contactLink && `в Telegram <a href="${contactLink.href}" target="_blank" rel="noopener">${contactLink.textContent}</a>`,
+      mailLink && `на почту <a href="${mailLink.href}">${mailLink.textContent}</a>`,
+    ].filter(Boolean);
+    return links.length ? ` Или напишите нам ${links.join(' или ')}.` : '';
+  };
 
   const fields: LeadField[] = ['name', 'contact', 'comment', 'consent'];
 

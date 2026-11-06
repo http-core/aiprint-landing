@@ -22,6 +22,7 @@ export function initFilm({ gsap, desktop }: MotionEnv) {
   const selected = variants.querySelector<HTMLElement>('.variant.is-selected');
   const selectedPhoto = selected?.querySelector('.variant__photo');
   const badge = selected?.querySelector('.variant__badge');
+  const sparkles = [...(selected?.querySelectorAll('.variant__sparkles img') ?? [])];
   const others = cells.filter((c) => c !== selected);
   const last = frames.length - 1;
 
@@ -73,6 +74,7 @@ export function initFilm({ gsap, desktop }: MotionEnv) {
       8.9,
     )
     .fromTo(badge ?? [], { autoAlpha: 0, scale: 0.8 }, { autoAlpha: 1, scale: 1, duration: 0.4 }, 9.1)
+    .fromTo(sparkles, { autoAlpha: 0, scale: 0 }, { autoAlpha: 1, scale: 1, duration: 0.3, stagger: 0.1 }, 9.2)
     .to({}, { duration: 0.6 });
 
   return { trigger: tl.scrollTrigger! };

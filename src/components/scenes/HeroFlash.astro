@@ -3,6 +3,7 @@ import Button from '../ui/Button.astro';
 import Lens from '../ui/Lens.astro';
 import Portrait from '../ui/Portrait.astro';
 import { heroStyle, site, val } from '../../data';
+import cursor from '../../assets/pixel/cursor.png';
 
 const { hero } = site;
 ---
@@ -41,7 +42,10 @@ const { hero } = site;
     <div class="hero__foot">
       <p class="hero__lead">{hero.lead}</p>
       <div class="hero__actions">
-        <Button href="#lead">{hero.cta}</Button>
+        <span class="hero__cta">
+          <Button href="#lead">{hero.cta}</Button>
+          <img class="hero__cursor" src={cursor.src} alt="" aria-hidden="true" width="24" height="38" />
+        </span>
         <a class="hero__more" href="#film">
           {hero.secondaryCta}
           <svg aria-hidden="true" viewBox="0 0 16 16" width="14" height="14"><path d="M8 2v11m-4.5-4.5L8 13l4.5-4.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path></svg>
@@ -255,6 +259,28 @@ const { hero } = site;
     flex-wrap: wrap;
     align-items: center;
     gap: 12px 24px;
+  }
+
+  .hero__cta {
+    position: relative;
+    display: inline-flex;
+  }
+
+  /* Пиксельный курсор из интерфейса будки — «нажми меня» */
+  .hero__cursor {
+    position: absolute;
+    right: 14px;
+    top: 62%;
+    width: 24px;
+    height: auto;
+    image-rendering: pixelated;
+    pointer-events: none;
+    filter: drop-shadow(0 2px 0 rgb(20 20 20 / 0.15));
+    transition: transform var(--dur-base) var(--ease-out);
+  }
+
+  .hero__cta:hover .hero__cursor {
+    transform: translate(-3px, -3px);
   }
 
   .hero__more {

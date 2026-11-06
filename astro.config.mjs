@@ -23,7 +23,33 @@ export default defineConfig({
   output: 'static',
   adapter: node({ mode: 'standalone', bodySizeLimit: 64 * 1024 }),
   site: process.env.SITE_URL,
+  // Стили встраиваются в HTML: на одностраничнике это убирает блокирующий запрос CSS
+  build: { inlineStylesheets: 'always' },
   fonts: [
+    {
+      // Шрифт интерфейса будки — для заголовков
+      provider: fontProviders.local(),
+      name: 'Unbounded',
+      cssVariable: '--font-display',
+      fallbacks: ['Arial', 'sans-serif'],
+      options: {
+        variants: [
+          {
+            weight: '200 900',
+            style: 'normal',
+            src: ['./node_modules/@fontsource-variable/unbounded/files/unbounded-cyrillic-wght-normal.woff2'],
+            unicodeRange: [CYRILLIC],
+          },
+          {
+            // урезанная латиница (scripts/subset-fonts.sh): 50 КБ → ~10 КБ
+            weight: '200 900',
+            style: 'normal',
+            src: ['./src/assets/fonts/unbounded-latin-basic-wght.woff2'],
+            unicodeRange: ['U+0020-007E, U+00A0, U+00AB, U+00BB, U+2013-2014, U+2018-201E, U+2026, U+20BD'],
+          },
+        ],
+      },
+    },
     {
       provider: fontProviders.local(),
       name: 'Onest',

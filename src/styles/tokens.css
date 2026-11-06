@@ -1,6 +1,6 @@
 /*
- * Дизайн-токены. Палитра повторяет акценты оклейки будки:
- * фиолетовый, лайм, коралл — точечно, на светлом «молочном» фоне.
+ * Дизайн-токены. Акценты — из интерфейса будки: кислотно-жёлтый и оранжевый,
+ * плюс фиолетовый; точечно, на светлом «молочном» фоне.
  */
 :root {
   /* Цвета */
@@ -13,26 +13,27 @@
   --line-strong: rgb(20 20 20 / 0.28);
   --violet: #6b4eff;
   --violet-ink: #4b31d9;
-  --lime: #c8f04a;
-  --coral: #ff6b57;
+  --lime: #e6ff30; /* кислотно-жёлтый будки */
+  --coral: #fe511e; /* оранжевый будки */
   --coral-ink: #c2321f;
   --film: #161513;
   --film-edge: #2a2824;
 
   /* Типографика */
   --font-body: var(--font-sans), system-ui, sans-serif;
-  --fs-display: clamp(2.75rem, 8.4vw, 9.25rem);
-  --fs-h2: clamp(2.125rem, 5.4vw, 5.5rem);
-  --fs-h3: clamp(1.5rem, 2.6vw, 2.5rem);
+  --font-head: var(--font-display), var(--font-sans), sans-serif;
+  --fs-display: clamp(2.25rem, 7vw, 7.75rem);
+  --fs-h2: clamp(1.75rem, 4.3vw, 4.5rem);
+  --fs-h3: clamp(1.3125rem, 2.2vw, 2.125rem);
   --fs-lead: clamp(1.0625rem, 0.95rem + 0.45vw, 1.375rem);
   --fs-body: 1rem;
   --fs-small: 0.875rem;
   --fs-mono: 0.75rem;
-  --lh-tight: 0.92;
-  --lh-head: 1.02;
+  --lh-tight: 0.98;
+  --lh-head: 1.08;
   --lh-body: 1.55;
-  --tracking-display: -0.045em;
-  --tracking-head: -0.035em;
+  --tracking-display: -0.035em;
+  --tracking-head: -0.025em;
   --tracking-mono: 0.08em;
 
   /* Сетка и отступы */

@@ -1,0 +1,15 @@
+# Добавьте сервис landing в существующий compose.yml рядом с nginx.
+services:
+  landing:
+    container_name: aifotobudka.ru.landing
+    image: ghcr.io/http-core/aiprint-landing:sha-08a3f80
+    restart: always
+    env_file: ./landing.env # TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID
+    environment:
+      SITE_URL: https://aifotobudka.ru
+      TRUST_PROXY: "1" # IP клиента — из X-Forwarded-For, который ставит nginx
+    # порты наружу не публикуем: nginx ходит в контейнер по имени landing:4321
+    logging:
+      driver: loki
+      options:
+        loki-url: "http://loki.spsfm.ru:3100/loki/api/v1/push"

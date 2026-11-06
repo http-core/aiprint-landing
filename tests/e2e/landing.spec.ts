@@ -27,7 +27,7 @@ test.describe('сквозной сценарий', () => {
     const ids = await page.locator('main > section, main > .pin-spacer > section').evaluateAll((els) =>
       els.map((e) => e.id),
     );
-    expect(ids).toEqual(['top', 'film', 'print', 'equipment', 'lead']);
+    expect(ids).toEqual(['top', 'film', 'print', 'equipment', 'faq', 'lead']);
     await expect(page.locator('h1')).toHaveCount(1);
   });
 
@@ -240,7 +240,8 @@ test.describe('форма заявки', () => {
     await fill(page);
     await page.getByRole('button', { name: 'Получить предложение' }).click();
     await expect(page.locator('[data-status]')).toContainText('Не удалось отправить');
-    await expect(page.locator('[data-status] a')).toHaveAttribute('href', /t\.me/);
+    await expect(page.locator('[data-status] a[href*="t.me"]')).toBeVisible();
+    await expect(page.locator('[data-status] a[href^="mailto:"]')).toBeVisible();
     await expect(page.locator('#lf-name')).toHaveValue('Иван');
     await expect(page.getByText('Заявка отправлена')).toBeHidden();
   });
@@ -283,6 +284,43 @@ test.describe('без JavaScript', () => {
     await page.getByRole('button', { name: 'Получить предложение' }).click();
     await expect(page.getByText('не настроен')).toBeVisible();
     await expect(page.getByRole('link', { name: /Вернуться/ })).toBeVisible();
+  });
+});
+
+test.describe('FAQ', () => {
+  test('раскрывается клавиатурой, открыт только один вопрос', async ({ page, isMobile, browserName }) => {
+    test.skip(isMobile || browserName === 'webkit', 'клавиатура: десктопные Chrome/Firefox');
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await page.goto('/#faq');
+    const items = page.locator('.faq__item');
+    await items.nth(0).locator('summary').focus();
+    await page.keyboard.press('Enter');
+    await expect(items.nth(0)).toHaveAttribute('open', '');
+    await expect(items.nth(0).locator('.faq__a')).toBeVisible();
+    await items.nth(1).locator('summary').focus();
+    await page.keyboard.press('Enter');
+    await expect(items.nth(1)).toHaveAttribute('open', '');
+    await expect(items.nth(0)).not.toHaveAttribute('open', '');
+    await page.keyboard.press('Enter');
+    await expect(items.nth(1)).not.toHaveAttribute('open', '');
+  });
+
+  test('JSON-LD FAQPage совпадает с видимыми вопросами', async ({ page }) => {
+    await page.goto('/');
+    const ld = JSON.parse((await page.locator('script[type="application/ld+json"]').textContent())!);
+    const visible = (await page.locator('.faq__q > span:first-child').allTextContents()).map((t) => t.trim());
+    expect(ld['@type']).toBe('FAQPage');
+    expect(ld.mainEntity.map((q: { name: string }) => q.name)).toEqual(visible);
+  });
+});
+
+test.describe('FAQ без JavaScript', () => {
+  test.use({ javaScriptEnabled: false });
+  test('вопросы раскрываются', async ({ page }) => {
+    await page.goto('/#faq');
+    const first = page.locator('.faq__item').first();
+    await first.locator('summary').click();
+    await expect(first.locator('.faq__a')).toBeVisible();
   });
 });
 
