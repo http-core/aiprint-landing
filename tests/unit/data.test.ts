@@ -11,7 +11,7 @@ describe('данные лендинга', () => {
 
   it('невалидные данные отклоняются (сборка упадёт)', () => {
     expect(() => modelsSchema.parse([])).toThrow();
-    expect(() => stylesSchema.parse({ ...styles, variants: ['nope', 'anime', 'noir', 'comic'] })).toThrow();
+    expect(() => stylesSchema.parse({ ...styles, variants: ['nope', 'anime', 'toy', 'folk'] })).toThrow();
     expect(() => modelsSchema.parse([{ ...models[0], image: 'booth.gif' }])).toThrow();
   });
 

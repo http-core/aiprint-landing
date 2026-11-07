@@ -4,21 +4,22 @@ import { ph, stylesSchema } from './schema';
  * Стили на фотоплёнке. Порядок = порядок кадров; первый стиль — это портрет
  * из сцены «Вспышка» (он «падает» в первый кадр плёнки).
  * Добавление/удаление стиля не требует правки анимаций.
- * Изображения — src/assets/<image>; сейчас все — заглушки.
+ * Изображения — src/assets/<image>, 900×1200 (3:4). Первый кадр — исходный снимок без стиля.
  */
 export const styles = stylesSchema.parse({
   list: [
-    { id: 'anime', name: ph('Аниме'), image: ph('styles/anime.jpg'), alt: 'Портрет в стиле аниме' },
-    { id: 'noir', name: ph('Нуар'), image: ph('styles/noir.jpg'), alt: 'Чёрно-белый портрет в стиле нуар' },
-    { id: 'comic', name: ph('Комикс'), image: ph('styles/comic.jpg'), alt: 'Портрет в стиле комикса' },
-    { id: 'renaissance', name: ph('Ренессанс'), image: ph('styles/renaissance.jpg'), alt: 'Портрет в духе живописи Ренессанса' },
-    { id: 'cyber', name: ph('Киберпанк'), image: ph('styles/cyber.jpg'), alt: 'Портрет в неоновом стиле киберпанк' },
-    { id: 'pixel', name: ph('Пиксель-арт'), image: ph('styles/pixel.jpg'), alt: 'Портрет в стиле пиксель-арт' },
-    { id: 'watercolor', name: ph('Акварель'), image: ph('styles/watercolor.jpg'), alt: 'Акварельный портрет' },
-    { id: 'pop', name: ph('Поп-арт'), image: ph('styles/pop.jpg'), alt: 'Портрет в стиле поп-арт' },
+    { id: 'original', name: 'Оригинал', image: 'styles/original.jpg', alt: 'Исходный снимок: пушистый полосатый кот сидит на деревянном полу' },
+    { id: 'illustration', name: 'Иллюстрация', image: 'styles/illustration.jpg', alt: 'Тот же кот в виде яркой мультяшной иллюстрации' },
+    { id: 'denim', name: 'Деним', image: 'styles/denim.jpg', alt: 'Кот, собранный из лоскутов джинсовой ткани, в технике пэчворк' },
+    { id: 'monument', name: 'Монумент', image: 'styles/monument.jpg', alt: 'Гигантская каменная статуя кота в строительных лесах посреди города' },
+    { id: 'toy', name: 'Фигурка', image: 'styles/toy.jpg', alt: 'Кот в виде коллекционной виниловой фигурки с большими глазами' },
+    { id: 'collage', name: 'Коллаж', image: 'styles/collage.jpg', alt: 'Кот, сложенный из рваной бумаги и газетных вырезок' },
+    { id: 'anime', name: 'Аниме', image: 'styles/anime.jpg', alt: 'Кот на залитой солнцем веранде в стиле аниме-пейзажа' },
+    { id: 'folk', name: 'Народная роспись', image: 'styles/folk.jpg', alt: 'Кот в окружении цветов и домиков в стиле народной росписи' },
+    { id: 'pixel', name: 'Пиксели', image: 'styles/pixel.jpg', alt: 'Кот в виде пиксельного персонажа на фоне лавы' },
   ],
-  variants: ['comic', 'anime', 'renaissance', 'cyber'],
-  selected: 1,
+  variants: ['toy', 'anime', 'folk', 'pixel'],
+  selected: 2,
 });
 
 export const styleById = (id: string) => {

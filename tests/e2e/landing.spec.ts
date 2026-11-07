@@ -150,7 +150,7 @@ test.describe('prefers-reduced-motion', () => {
     await expect(page.locator('.pin-spacer')).toHaveCount(0);
     await expect(page.locator('.flash')).toHaveCSS('opacity', '0');
     await expect(page.locator('.hero__portrait img')).toBeVisible();
-    await expect(page.locator('.film__frame')).toHaveCount(8);
+    await expect(page.locator('.film__frame')).toHaveCount(9);
     await expect(page.locator('.variant')).toHaveCount(4);
     await expect(page.locator('.variant.is-selected')).toHaveCount(1);
     await expect(page.locator('.photo-frame__card img')).toBeVisible();
