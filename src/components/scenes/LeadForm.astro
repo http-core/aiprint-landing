@@ -20,17 +20,6 @@ const contact = val(site.telegramContact);
         {' '}или почта{' '}
         <a href={`mailto:${site.company.email}`}>{site.company.email}</a>
       </p>
-      <div class="leadsec__art" aria-hidden="true">
-        <Picture
-          src={deal}
-          alt=""
-          widths={[360, 540, 720, 903]}
-          sizes="(max-width: 959px) 320px, 440px"
-          formats={['avif', 'webp']}
-          loading="lazy"
-          class="leadsec__art-img"
-        />
-      </div>
     </div>
 
     <div class="leadsec__card">
@@ -116,7 +105,16 @@ const contact = val(site.telegramContact);
       </form>
 
       <div class="form__done" data-done hidden tabindex="-1">
-        <span class="form__done-mark" aria-hidden="true">✓</span>
+        <Picture
+          src={deal}
+          alt=""
+          aria-hidden="true"
+          widths={[280, 420, 560]}
+          sizes="280px"
+          formats={['avif', 'webp']}
+          loading="lazy"
+          class="form__done-art"
+        />
         <h3 class="form__done-title">Заявка отправлена</h3>
         <p>Спасибо! Мы получили ваши контакты и свяжемся с вами, чтобы рассказать о стоимости, комплектации и установке.</p>
       </div>
@@ -153,34 +151,6 @@ const contact = val(site.telegramContact);
     gap: 18px;
   }
 
-  /* Иллюстрация «договорились» на фирменной плашке; фигуры обрезаны её нижним краем */
-  .leadsec__art {
-    position: relative;
-    overflow: hidden;
-    width: min(100%, 440px);
-    aspect-ratio: 1 / 0.82;
-    margin-top: 12px;
-    border-radius: var(--radius-l);
-    background:
-      radial-gradient(120% 90% at 50% 100%, rgb(255 255 255 / 0.55), transparent 60%),
-      var(--lime);
-  }
-
-  .leadsec__art :global(.leadsec__art-img) {
-    position: absolute;
-    left: 50%;
-    bottom: -9%;
-    width: 84%;
-    height: auto;
-    transform: translateX(-50%);
-  }
-
-  @media (max-width: 959px) {
-    .leadsec__art {
-      width: min(100%, 320px);
-    }
-  }
-
   .leadsec__title {
     font-size: var(--fs-h2);
     line-height: var(--lh-head);
@@ -210,7 +180,7 @@ const contact = val(site.telegramContact);
   .leadsec__card {
     padding: clamp(20px, 4vw, 48px);
     border-radius: var(--radius-l);
-    background: var(--milk);
+    background: var(--bg);
     box-shadow: inset 0 0 0 1px var(--line);
   }
 
@@ -450,15 +420,22 @@ const contact = val(site.telegramContact);
     outline: none;
   }
 
-  .form__done-mark {
-    display: grid;
-    place-items: center;
-    width: 56px;
-    height: 56px;
-    border-radius: 50%;
-    background: var(--lime);
-    font-size: 1.5rem;
-    font-weight: 600;
+  /* «Договорились» — рукопожатие появляется только после успешной отправки */
+  .form__done :global(.form__done-art) {
+    width: min(280px, 70%);
+    height: auto;
+    margin-bottom: 4px;
+  }
+
+  :global(.motion) .form__done:not([hidden]) :global(.form__done-art) {
+    animation: done-in var(--dur-slow) var(--ease-out) both;
+  }
+
+  @keyframes done-in {
+    from {
+      opacity: 0;
+      transform: translateY(16px) scale(0.96);
+    }
   }
 
   .form__done-title {

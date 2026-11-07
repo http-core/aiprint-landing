@@ -21,7 +21,7 @@ const { hero } = site;
     <h1 class="hero__title" id="hero-title">
       <span class="hero__line hero__line--top">{hero.titleTop}</span>
       <span class="hero__line hero__line--bottom">
-        {hero.titleBottomPlain}<em class="serif">{hero.titleBottomAccent}</em>
+        {hero.titleBottomPlain}<em class="hero__accent">{hero.titleBottomAccent}</em>
       </span>
     </h1>
 
@@ -90,7 +90,7 @@ const { hero } = site;
     height: 22px;
     border-radius: 50%;
     background: radial-gradient(circle at 40% 38%, #4a36b8 0 22%, #08061a 23% 48%, var(--ink) 49%);
-    box-shadow: 0 0 0 3px var(--milk), 0 0 0 4px var(--line-strong);
+    box-shadow: 0 0 0 3px var(--bg), 0 0 0 4px var(--line-strong);
   }
 
   .hero__bar-link {
@@ -130,10 +130,13 @@ const { hero } = site;
     padding-bottom: clamp(24px, 4svh, 48px);
   }
 
+  /* Нижняя строка («с воображением») ≈ 10.4em — кегль подбирается так, чтобы она
+     всегда помещалась в одну строку (на десктопе — ещё и не заезжала на блок с кнопкой). */
   .hero__title {
+    --title-line: 10.5;
     display: flex;
     flex-direction: column;
-    font-size: var(--fs-display);
+    font-size: min(var(--fs-display), calc((100vw - 2 * var(--gutter)) / var(--title-line)));
     font-weight: 500;
     line-height: var(--lh-tight);
     letter-spacing: var(--tracking-display);
@@ -143,8 +146,15 @@ const { hero } = site;
     align-self: flex-end;
   }
 
-  .hero__line--bottom .serif {
-    letter-spacing: -0.03em;
+  /* Акцент — тот же шрифт, но «проявленный» цветом: градиент фиолетовый → маджента → оранжевый */
+  .hero__accent {
+    font-style: normal;
+    color: var(--violet-ink); /* фолбэк без background-clip: text */
+    background: linear-gradient(100deg, #6b4eff 0%, #e04ad6 55%, #ff8a3d 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    padding-right: 0.04em; /* чтобы не обрезался край «!» */
   }
 
   .hero__stage {
@@ -153,6 +163,8 @@ const { hero } = site;
     height: var(--frame-h);
     margin-inline: auto;
     margin-bottom: 40px; /* место под подпись кадра и кнопку повтора */
+    z-index: 2; /* при склейке портрет едет вниз — поверх текста и кнопок hero */
+    pointer-events: none; /* на десктопе сцена занимает весь hero — не перекрываем кнопки */
   }
 
   .hero__lens,
@@ -172,7 +184,7 @@ const { hero } = site;
     position: absolute;
     inset: -9%;
     border-radius: 32%;
-    background: linear-gradient(160deg, #fff 0%, #f1eee7 100%);
+    background: linear-gradient(160deg, #fff 0%, #e9eaee 100%);
     box-shadow:
       inset 0 0 0 1px rgb(20 20 20 / 0.06),
       var(--shadow-paper);
@@ -224,6 +236,7 @@ const { hero } = site;
       color var(--dur-fast) var(--ease-out),
       background-color var(--dur-fast) var(--ease-out),
       transform var(--dur-base) var(--ease-out);
+    pointer-events: auto;
   }
 
   .hero__replay::before {
@@ -296,6 +309,7 @@ const { hero } = site;
   /* ---------- Широкий экран: заголовок «обнимает» объектив ---------- */
   @media (min-width: 1100px) {
     .hero__inner {
+      --foot-w: clamp(320px, 27vw, 400px);
       position: relative;
       display: block;
       min-height: max(640px, calc(100svh - 72px));
@@ -303,6 +317,11 @@ const { hero } = site;
     }
 
     .hero__title {
+      /* нижняя строка заголовка делит низ экрана с блоком текста и кнопок: ширина строки ≤ остаток */
+      font-size: min(
+        var(--fs-display),
+        calc((min(100vw, var(--maxw)) - 2 * var(--gutter) - var(--foot-w) - 56px) / var(--title-line))
+      );
       position: absolute;
       inset: 8px var(--gutter) clamp(24px, 4svh, 48px);
       justify-content: space-between;
@@ -311,7 +330,8 @@ const { hero } = site;
 
     .hero__stage {
       position: absolute;
-      inset: 0;
+      /* центр чуть выше середины: под портретом подпись кадра, ниже — строка заголовка */
+      inset: 0 0 clamp(24px, 8svh - 24px, 64px);
       margin: auto;
     }
 
@@ -319,7 +339,7 @@ const { hero } = site;
       position: absolute;
       left: var(--gutter);
       bottom: clamp(24px, 4svh, 48px);
-      max-width: min(30em, max(340px, calc(50% - var(--frame-w) * 0.61 - 2 * var(--gutter))));
+      width: var(--foot-w);
     }
   }
 

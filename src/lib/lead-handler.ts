@@ -44,7 +44,7 @@ const HTML_TEXT: Record<LeadCode, string> = {
 function reply(code: LeadCode, asHtml: boolean, errors?: LeadErrors): Response {
   const status = STATUS[code];
   if (asHtml) {
-    const html = `<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Заявка</title><style>body{font:18px/1.5 system-ui,sans-serif;background:#faf8f3;color:#141414;display:grid;place-items:center;min-height:100vh;margin:0;padding:16px}main{max-width:32em}a{color:#4b31d9}</style></head><body><main><p>${HTML_TEXT[code]}</p><p><a href="/#lead">← Вернуться на сайт</a></p></main></body></html>`;
+    const html = `<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Заявка</title><style>body{font:18px/1.5 system-ui,sans-serif;background:#f4f5f7;color:#141414;display:grid;place-items:center;min-height:100vh;margin:0;padding:16px}main{max-width:32em}a{color:#4b31d9}</style></head><body><main><p>${HTML_TEXT[code]}</p><p><a href="/#lead">← Вернуться на сайт</a></p></main></body></html>`;
     return new Response(html, { status, headers: { 'content-type': 'text/html; charset=utf-8' } });
   }
   return Response.json(errors ? { ok: code === 'ok', code, errors } : { ok: code === 'ok', code }, {

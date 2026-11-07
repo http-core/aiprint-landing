@@ -65,19 +65,6 @@ export default defineConfig({
     },
     {
       provider: fontProviders.local(),
-      name: 'Playfair Display',
-      cssVariable: '--font-serif',
-      fallbacks: ['Georgia', 'serif'],
-      options: {
-        variants: variants(
-          './node_modules/@fontsource/playfair-display/files',
-          (s) => `playfair-display-${s}-400-italic.woff2`,
-          { weight: 400, style: 'italic' },
-        ),
-      },
-    },
-    {
-      provider: fontProviders.local(),
       name: 'JetBrains Mono',
       cssVariable: '--font-mono',
       fallbacks: ['Menlo', 'monospace'],
